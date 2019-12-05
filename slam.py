@@ -30,28 +30,25 @@ disp =Display(W,H)
 #print(dir(orb))
 
 
-class FeatureExtractor(object):
-	"""docstring for FeatureExtractor"""
+#class FeatureExtractor(object):
+#	"""docstring for FeatureExtractor"""
 	# put image into small grid
 
 	# GX = 16
 	# GY = 16
 
-	def __init__(self):
-		self.orb =cv2.ORB_create(100)
-	def extract(self, img):
-		feats = cv2.goodFeaturesToTrack(np.mean(img, axis=2).astype(np.uint8), 3000, qualityLevel=0.01, minDistance=3) 
-		kps = [cv2.KeyPoint(x=f[0][0], y=f[0][1],_size =20) for f in feats]
-		des =self.orb.compute(img,kps)
-		"""
-		if self.last is not None:
-			matches =self.bf.match(des, self.last['kps'])
-			print(matches)
+#	def __init__(self):
+#		self.orb =cv2.ORB_create(100)
+#	def extract(self, img):
+#		feats = cv2.goodFeaturesToTrack(np.mean(img, axis=2).astype(np.uint8), 3000, qualityLevel=0.01, minDistance=3) 
+#		kps = [cv2.KeyPoint(x=f[0][0], y=f[0][1],_size =20) for f in feats]
+#		des =self.orb.compute(img,kps)
+		# if self.last is not None:
+		# 	matches =self.bf.match(des, self.last['kps'])
+		# 	print(matches)
 
-
-		self.last ={'kps':kps,'des':des}
-		"""
-		return kps, des
+#		self.last ={'kps':kps,'des':des}
+#		return kps, des
 
 		 # run detect in grid
 		# sy = img.shape[0]//self.GY
@@ -63,14 +60,21 @@ class FeatureExtractor(object):
 		# 		for p in kp:
 		# 			print(p)
 		
-fe = FeatureExtractor()
+fe = Extractor()
 
 def process_frame(img):
 	img =cv2.resize(img,(W,H))
-	kps, des =fe.extract(img)
-	for i in kps:
-	  u,v=map(lambda x: int(round(x)),i.pt)
-	  cv2.circle(img,(u,v),color=(0,255,0),radius =3)
+	matches = fe.extract(img)
+	print("%d matches" % (len(matches)))
+	for pt1, pt2 in matches:
+		u1,v1 = map(lambda x: int(round(x)), pt1)
+		u2,v2 = map(lambda x: int(round(x)), pt2)
+		cv2.circle(img, (u1, v1), color=(0,255,0), radius=3)
+		cv2.line(img, (u1, v1), (u2, v2), color=(255,0,0))
+	# kps, des =fe.extract(img)
+	# for i in kps:
+	#   u,v=map(lambda x: int(round(x)),i.pt)
+	#   cv2.circle(img,(u,v),color=(0,255,0),radius =3)
 	disp.paint(img)	
 # def process_frame(img):
 # 	matches = fe.extract(img)
@@ -96,7 +100,7 @@ def process_frame(img):
 
 
 if __name__=="__main__":
-	cap = cv2.VideoCapture("test.mp4")
+	cap = cv2.VideoCapture("bu.mp4")
 
 	while cap.isOpened():
 		ret, frame =cap. read()
